@@ -119,23 +119,23 @@ export const getDashboardStats = TryCatch(
       0
     );
 
-    let percentage = {
+    let changePercent = {
       revenue: calculatePercentage(thisMonthRevenue, lastMonthRevenue),
-      products: calculatePercentage(
+      product: calculatePercentage(
         thisMonthProducts.length,
         lastMonthProducts.length
       ),
-      orders: calculatePercentage(
+      order: calculatePercentage(
         thisMonthOrders.length,
         lastMonthOrders.length
       ),
-      users: calculatePercentage(thisMonthUsers.length, lastMonthUsers.length),
+      user: calculatePercentage(thisMonthUsers.length, lastMonthUsers.length),
     };
     const totalRevenue = allOrders.reduce((acc, order) => acc + order.total, 0);
-    const counts = {
-      products: productsCount,
-      orders: allOrders.length,
-      users: usersCount,
+    const count = {
+      product: productsCount,
+      order: allOrders.length,
+      user: usersCount,
       revenue: totalRevenue,
     };
 
@@ -162,30 +162,26 @@ export const getDashboardStats = TryCatch(
       female: femaleUsersCount,
     };
 
-    const modifiedLatestTransactions = latestTransactions.map((item) => ({
+    const modifiedLatestTransaction = latestTransactions.map((item) => ({
       _id: item.id,
       discount: item.discount,
       quantity: item.orderItems.length,
       amount: item.total,
     }));
-
+    const stats = {
+      categoryCount,
+      changePercent,
+      count,
+      chart: {
+        order: orderMonthlyCounts,
+        revenue: orderMonthlyRevenue,
+      },
+      userRatio,
+      latestTransaction: modifiedLatestTransaction,
+    };
     return res.status(200).json({
       success: true,
-      message: "Stats fetched successfully",
-      data: {
-        latestTransactions: modifiedLatestTransactions,
-        userRatio,
-        categories,
-        categoryCount,
-        chart: {
-          order: orderMonthlyCounts,
-          revenue: orderMonthlyRevenue,
-        },
-        stats: {
-          percentage,
-          counts,
-        },
-      },
+      stats
     });
   }
 );
@@ -229,18 +225,18 @@ export const getPieCharts = TryCatch(
       User.countDocuments({ role: "user" }),
     ]);
 
-    const fullfillmentRatio = {
+    const orderFullfillment = {
       processing: orderProcessing,
       shipped: orderShipped,
       delivered: orderDelivered,
     };
 
-    const inventoryRatio: Record<string, number>[] = await getInventories({
+    const productCategories : Record<string, number>[] = await getInventories({
       categories,
       productsCount,
     });
 
-    const stockAvailability = {
+    const stockAvailablity = {
       outOfStock: productsOutOfStock,
       inStock: productsCount - productsOutOfStock,
     };
@@ -270,26 +266,29 @@ export const getPieCharts = TryCatch(
       marketingCost,
     };
 
-    const ageDistribution = {
+    const usersAgeGroup = {
       teen: allUsers.filter((user) => user.age <= 20).length,
       adult: allUsers.filter((user) => user.age > 20 && user.age <= 45).length,
-      elder: allUsers.filter((user) => user.age > 45).length,
+      old: allUsers.filter((user) => user.age > 45).length,
     };
+
+    const adminCustomer = {
+      admin: adminUsers,
+      customer: customerUsers,
+    };
+
+    const charts = {
+      orderFullfillment,
+      productCategories,
+      stockAvailablity,
+      revenueDistribution,
+      usersAgeGroup,
+      adminCustomer,
+    };
+
     return res.status(200).json({
       success: true,
-      message: "Pie charts fetched successfully",
-      data: {
-        allUsers,
-        fullfillmentRatio,
-        inventoryRatio,
-        stockAvailability,
-        revenueDistribution,
-        ageDistribution,
-        users: {
-          admin: adminUsers,
-          customer: customerUsers,
-        },
-      },
+      charts
     });
   }
 );
@@ -335,14 +334,14 @@ export const getBarCharts = TryCatch(
     const ordersCounts = getChartData({ length: 12, today, docArr: orders });
 
     const charts = {
-      product: productCounts,
+      products: productCounts,
       users: usersCounts,
       orders: ordersCounts,
     };
+
     return res.status(200).json({
       success: true,
-      message: "Bar charts fetched successfully",
-      data: { charts },
+      charts
     });
   }
 );
@@ -393,7 +392,7 @@ export const getLineChats = TryCatch(
     });
 
     const charts = {
-      product: productCounts,
+      products: productCounts,
       users: usersCounts,
       discount,
       revenue,
@@ -401,8 +400,7 @@ export const getLineChats = TryCatch(
 
     return res.status(200).json({
       success: true,
-      message: "Line charts fetched successfully",
-      data: { charts },
+      charts
     });
   }
 );

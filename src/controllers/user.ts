@@ -42,35 +42,29 @@ import { rm } from "fs";
 
 export const newUser = TryCatch(
     async(req: Request<{}, {}, NewUserRequestBody>, res: Response, next: NextFunction)=>{
-        const {name, email, gender, _id, dob} = req.body;
-        const photo = req.file
-        if(!photo){
-            return next(new ErrorHandler("Please add photo", 400));
-        }
+        const { name, email, photo, gender, _id, dob } = req.body;
         let user = await User.findById(_id);
-        if(user){
-            rm(photo.path, ()=>{console.log("user photo removed")});
-            return res.status(403).json({
-                success: false,
-                message: "User already exists"
-            })
-        }
-        if(!_id || !name || !email || !gender || !dob){
-            rm(photo.path, ()=>{console.log("user photo removed")});
+        if (user)
+            return res.status(200).json({
+              success: true,
+              message: `Welcome, ${user.name}`,
+            });
+      
+        if(!_id || !name || !email || !photo || !gender || !dob){
             return next(new ErrorHandler("Please enter all fields", 400))
         }
         user = await User.create({
             name,
             email,
-            photo: photo.path,
+            photo,
             gender,
             _id,
             dob: new Date(dob)
         })
         return res.status(201).json({
-            success: true,
-            message: `Welcome, ${user.name}`
-        })
+          success: true,
+          message: `Welcome, ${user.name}`,
+        });
     }
 )
 
@@ -80,10 +74,9 @@ export const getAllUsers = TryCatch(
         console.log(quary)
         const users = await User.find({}, {createdAt: 0, updatedAt: 0, __v: 0});
         return res.status(200).json({
-            success: true,
-            message: "All Users",
-            data: users
-        })
+          success: true,
+          users,
+        });
     }
 )
 
@@ -96,10 +89,9 @@ export const getUser = TryCatch(
             return next(new ErrorHandler("User not found", 404))
         }
         return res.status(200).json({
-            success: true,
-            message: "User found",
-            data: user
-        })
+          success: true,
+          user,
+        });
     }
 )
 
@@ -111,9 +103,8 @@ export const deleteUser = TryCatch(
             return next(new ErrorHandler("User not found", 404))
         }
         return res.status(200).json({
-            success: true,
-            message: "User deleted successfully",
-            user: user.name
-        })
+          success: true,
+          message: "User Deleted Successfully",
+        });
     }
 )

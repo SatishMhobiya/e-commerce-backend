@@ -15,6 +15,7 @@ export interface NewProductRequestBody {
   price: number;
   category: string;
   stock: number;
+  description: string;
 }
 
 export type ShippingInfoType = {
@@ -25,7 +26,7 @@ export type ShippingInfoType = {
   pinCode: number
 }
 
-export type OrderItemsType = {
+export type OrderItemType = {
   name: string,
   price: number,
   quantity: number,
@@ -40,12 +41,19 @@ export interface NewOrderRequestBody {
   shippingCharges: number;
   total: number;
   user: string;
-  orderItems: OrderItemsType[];
+  orderItems: OrderItemType[];
 }
 
 export interface NewCouponRequestBody {
-  coupon: string;
+  code: string;
   amount: number;
+}
+
+export interface NewReviewRequestBody {
+  comment: string;
+  rating: number;
+  user: string;
+  product: string;
 }
 
 export type ControllerType = (

@@ -40,10 +40,7 @@ export const newOrder = TryCatch(
     invalidateCache({ product: true, order: true, admin: true, productId: orderItems.map(item => String(item.productId)) });
     return res.status(201).json({
       success: true,
-      message: "Order created successfully",
-      data: {
-        order,
-      },
+      message: "Order Placed Successfully",
     });
   }
 );
@@ -60,10 +57,7 @@ export const getAllAdminOrders = TryCatch(
     }
     return res.status(200).json({
       success: true,
-      message: "Orders fetched successfully",
-      data: {
-        orders,
-      },
+      orders,
     });
   }
 );
@@ -89,10 +83,7 @@ export const getUserOrders = TryCatch(
 
     return res.status(200).json({
       success: true,
-      message: "Orders fetched successfully",
-      data: {
-        orders,
-      },
+      orders,
     });
   }
 );
@@ -120,10 +111,7 @@ export const getOrderDetails = TryCatch(
 
     return res.status(200).json({
       success: true,
-      message: "Order fetched successfully",
-      data: {
-        order,
-      },
+      order,
     });
   }
 );
@@ -158,10 +146,7 @@ export const processOrder = TryCatch(
     });
     return res.status(200).json({
       success: true,
-      message: "Order status updated successfully",
-      data: {
-        order,
-      },
+      message: "Order Processed Successfully",
     });
   }
 );
@@ -186,10 +171,7 @@ export const deleteOrder = TryCatch(
     });
     return res.status(200).json({
       success: true,
-      message: "Order deleted successfully",
-      data: {
-        order,
-      },
+      message: "Order Deleted Successfully",
     });
   }
 );
