@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose, { Document } from "mongoose";
+import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 import NodeCache from "node-cache";
-import { InvalidateCacheProps, OrderItemsType } from "../types/types";
+import { InvalidateCacheProps, OrderItemType } from "../types/types";
 import Product from "../models/product";
+import { Review } from "../models/review";
 
 export const myCache = new NodeCache();
 
@@ -47,7 +49,7 @@ export const invalidateCache = ({
   }
 };
 
-export const reduceProductStock = async (orderItems: OrderItemsType[]) => {
+export const reduceProductStock = async (orderItems: OrderItemType[]) => {
   for (let i = 0; i < orderItems.length; i++) {
     const order = orderItems[i];
     const product = await Product.findById(order.productId);
@@ -71,7 +73,6 @@ export const getInventories = async ({
   categories: string[];
   productsCount: number;
 }) => {
-
   const productCategoriesCountPromise = categories.map((category) =>
     Product.countDocuments({ category: category })
   );
@@ -84,11 +85,12 @@ export const getInventories = async ({
 
   categories.forEach((category, index) => {
     categoryCount.push({
-      [category]:
-        Math.round((productCategoriesCount[index] / productsCount) * 100),
+      [category]: Math.round(
+        (productCategoriesCount[index] / productsCount) * 100
+      ),
     });
   });
-  
+
   return categoryCount;
 };
 
@@ -126,3 +128,57 @@ export const getChartData = ({
 
   return data;
 };
+
+export const handleUpload = async (file: string) => {
+  const res = await cloudinary.uploader.upload(file, {
+    resource_type: "auto",
+  });
+  return res;
+};
+
+const getBase64 = (file: Express.Multer.File) => {
+  return `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+};
+
+export const uploadToCloudinary = async (files: Express.Multer.File[]) => {
+  const uploadPromises = files.map(async (file) => {
+    return new Promise<UploadApiResponse>((resolve, reject) => {
+      cloudinary.uploader.upload(getBase64(file), (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result!);
+      });
+    });
+  });
+
+  const result = await Promise.all(uploadPromises);
+  return result.map((i) => ({
+    public_id: i.public_id,
+    url: i.url,
+  }));
+};
+
+export const deleteFromCloudinary = async(publicIds: string[]) => {
+  const promises = publicIds.map((id)=>{
+    return new Promise<void>((resolve, reject) => {
+      cloudinary.uploader.destroy(id, (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      })
+    })
+  })
+  await Promise.all(promises);
+}
+
+export const findAverageRating = async (productId: mongoose.Types.ObjectId) => {
+  const reviews = await Review.find({product: productId});
+  const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+  const averageRating = totalRating / reviews.length || 0;
+  return {
+    averageRating: averageRating,
+    numOfReviews: reviews.length
+  }
+}
