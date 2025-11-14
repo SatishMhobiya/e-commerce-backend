@@ -4,8 +4,8 @@ services:
     runtime: node
     name: e-commerce-backend
     env: node
+    plan: free # Required for free tier! Without this, defaults to paid "starter" plan
     region: oregon # Change to your preferred region (singapore, frankfurt, etc.)
-    plan: starter # Change to 'standard' or higher for production
     branch: main # Change this to your main branch name (master, main, etc.)
     buildCommand: npm install && npm run build
     startCommand: npm run serve
