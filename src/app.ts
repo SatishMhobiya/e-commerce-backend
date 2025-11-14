@@ -16,7 +16,7 @@ import paymentRoute from "./routes/payment";
 
 config({ path: "./.env" });
 
-const PORT = process.env.PORT || 4000;
+const PORT = Number(process.env.PORT) || 4000;
 const MONGO_URI = process.env.MONGO_URI || "";
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
 
@@ -35,7 +35,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -57,6 +57,6 @@ app.use("/api/v1/payment", paymentRoute);
 // Error Middleware
 app.use(errorMiddleware);
 
-app.listen(PORT, () => {
-  console.log(`Express is working on ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Express is working on http://0.0.0.0:${PORT}`);
 });
