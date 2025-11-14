@@ -1,0 +1,43 @@
+services:
+  # E-Commerce Backend API
+  - type: web
+    runtime: node
+    name: e-commerce-backend
+    env: node
+    region: oregon # Change to your preferred region (singapore, frankfurt, etc.)
+    plan: starter # Change to 'standard' or higher for production
+    branch: main # Change this to your main branch name (master, main, etc.)
+    buildCommand: npm install && npm run build
+    startCommand: npm run serve
+    healthCheckPath: /
+    envVars:
+      # Port Configuration
+      - key: PORT
+        value: 4000
+
+      # MongoDB Connection (Required - Prompt for value)
+      - key: MONGO_URI
+        sync: false # You'll be prompted to enter this during deployment
+
+      # Stripe Configuration (Required for payments)
+      - key: STRIPE_SECRET_KEY
+        sync: false # You'll be prompted to enter this during deployment
+
+      # Cloudinary Configuration (Required for image uploads)
+      - key: CLOUDINARY_NAME
+        sync: false
+      
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      # CORS Origin (Frontend URL - Update after frontend deployment)
+      - key: CORS_ORIGIN
+        value: http://localhost:3000 # Update this to your frontend URL after deployment
+
+      # Node Environment
+      - key: NODE_ENV
+        value: production
+
