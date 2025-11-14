@@ -10,11 +10,11 @@ export const newCoupon = TryCatch(
     res: Response,
     next: NextFunction
   ) => {
-    const { coupon, amount } = req.body;
-    if (!coupon || !amount) {
+    const { code, amount } = req.body;
+    if (!code || !amount) {
       return next(new ErrorHandler("Please provide all fields", 400));
     }
-    const createdCoupon = await Coupon.create({ coupon, amount });
+    const createdCoupon = await Coupon.create({ code, amount });
     return res.status(201).json({
       success: true,
       message: "Coupon created successfully",
@@ -58,16 +58,16 @@ export const updateCoupon = TryCatch(
     if (!id) {
       return next(new ErrorHandler("Please provide coupon id", 400));
     }
-    const { coupon, amount } = req.body;
-    if (!coupon && !amount) {
+    const { code, amount } = req.body;
+    if (!code && !amount) {
       return next(new ErrorHandler("Please provide coupon or amount", 400));
     }
     const couponObj = await Coupon.findById(id);
     if (!couponObj) {
       return next(new ErrorHandler("Coupon not found", 404));
     }
-    if (coupon) {
-      couponObj.coupon = coupon;
+    if (code) {
+      couponObj.code = code;
     }
     if (amount) {
       couponObj.amount = amount;
