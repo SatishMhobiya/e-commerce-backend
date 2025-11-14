@@ -8,12 +8,9 @@ services:
     region: oregon # Change to your preferred region (singapore, frankfurt, etc.)
     branch: main # Change this to your main branch name (master, main, etc.)
     buildCommand: npm install && npm run build
-    startCommand: npm run serve
+    startCommand: node dist/app.js
     healthCheckPath: /
     envVars:
-      # Port Configuration
-      - key: PORT
-        value: 4000
 
       # MongoDB Connection (Required - Prompt for value)
       - key: MONGO_URI
